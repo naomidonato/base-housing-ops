@@ -82,6 +82,55 @@ public sealed class MaintenanceRequestRepository
             Status: reader.GetString(6));
     }
 
+
+        // Add this new method here.
+    public async Task<MaintenanceRequestResponse?> GetByIdAsync(
+        int id,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT
+                request_id,
+                unit_id,
+                resident_id,
+                description,
+                category,
+                urgency,
+                status,
+                created_at
+            FROM maintenance_request
+            WHERE request_id = $1;
+            """;
+
+        await using var command = _dataSource.CreateCommand(sql);
+
+        command.Parameters.AddWithValue(id);
+
+        await using var reader =
+            await command.ExecuteReaderAsync(cancellationToken);
+
+        if (!await reader.ReadAsync(cancellationToken))
+        {
+            return null;
+        }
+
+        return new MaintenanceRequestResponse(
+            Id: reader.GetInt32(0),
+            UnitId: reader.GetInt32(1),
+            ResidentId: reader.GetInt32(2),
+            Description: reader.GetString(3),
+            Category: reader.IsDBNull(4)
+                ? null
+                : reader.GetString(4),
+            Urgency: reader.IsDBNull(5)
+                ? null
+                : reader.GetString(5),
+            Status: reader.GetString(6),
+            CreatedAt: reader.GetFieldValue<DateTime>(7));
+    }
+
+
+
     private static void AddNullableTextParameter(
         NpgsqlCommand command,
         string? value)

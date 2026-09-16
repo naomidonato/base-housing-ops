@@ -52,6 +52,22 @@ app.MapPost(
             created);
     });
 
+    app.MapGet(
+    "/maintenance-requests/{id:int}",
+    async (
+        int id,
+        IMaintenanceRequestRepository repository,
+        CancellationToken cancellationToken) =>
+    {
+        var request = await repository.GetByIdAsync(
+            id,
+            cancellationToken);
+
+        return request is null
+            ? Results.NotFound()
+            : Results.Ok(request);
+    });
+
 app.Run();
 
 record CreateMaintenanceRequestDto(

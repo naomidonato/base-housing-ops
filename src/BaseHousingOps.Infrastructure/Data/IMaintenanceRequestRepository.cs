@@ -7,4 +7,8 @@ public interface IMaintenanceRequestRepository
     Task<CreatedMaintenanceRequest> CreateAsync(
         MaintenanceRequest request,
         CancellationToken cancellationToken = default);
+
+    Task<MaintenanceRequestResponse?> GetByIdAsync(
+        int id,
+        CancellationToken cancellationToken = default);
 }
